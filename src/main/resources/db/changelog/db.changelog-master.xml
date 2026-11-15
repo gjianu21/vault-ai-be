@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
+
+    <include file="changes/001-spring-session.xml" relativeToChangelogFile="true"/>
+    <include file="changes/002-accounts.xml" relativeToChangelogFile="true"/>
+    <include file="changes/003-chat.xml" relativeToChangelogFile="true"/>
+    <include file="changes/004-agent-action.xml" relativeToChangelogFile="true"/>
+    <include file="changes/005-audit-log.xml" relativeToChangelogFile="true"/>
+</databaseChangeLog>

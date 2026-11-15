@@ -1,0 +1,100 @@
+spring:
+  application:
+    name: vault-ai-be
+  config:
+    import: optional:file:.env[.properties]
+
+  datasource:
+    url: ${DB_URL:jdbc:oracle:thin:@localhost:1521/FREEPDB1}
+    username: ${VAULT_APP_DB_USER:VAULT_APP}
+    password: ${VAULT_APP_DB_PASSWORD}
+
+  jpa:
+    open-in-view: false
+    hibernate:
+      ddl-auto: none
+    properties:
+      hibernate:
+        jdbc:
+          time_zone: UTC
+
+  liquibase:
+    change-log: classpath:db/changelog/db.changelog-master.xml
+
+  session:
+    jdbc:
+      initialize-schema: never
+      cleanup-cron: "0 */5 * * * *"
+
+  mvc:
+    problemdetails:
+      enabled: true
+
+  security:
+    oauth2:
+      client:
+        registration:
+          vault-ai:
+            provider: vault-ai
+            client-id: vault-ai-be
+            client-secret: ${OAUTH2_CLIENT_SECRET}
+            client-authentication-method: client_secret_basic
+            authorization-grant-type: authorization_code
+            redirect-uri: "{baseUrl}/login/oauth2/code/{registrationId}"
+            scope: openid, profile, email
+        provider:
+          vault-ai:
+            issuer-uri: ${AUTH_ISSUER_URI:http://localhost:9000}
+            user-name-attribute: sub
+
+  graphql:
+    graphiql:
+      enabled: false
+
+server:
+  port: ${PORT:8080}
+  servlet:
+    session:
+      timeout: 15m
+      cookie:
+        name: VAULT-SESSION
+        http-only: true
+        same-site: lax
+        secure: ${COOKIE_SECURE:false}
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health
+
+springdoc:
+  api-docs:
+    enabled: false
+  swagger-ui:
+    enabled: false
+
+app:
+  frontend-url: ${FRONTEND_URL:http://localhost:5173}
+  internal-api-key: ${INTERNAL_API_KEY}
+
+  agent:
+    base-url: ${AGENT_BASE_URL:}
+    chat-path: ${AGENT_CHAT_PATH:/chat}
+    api-token: ${AGENT_API_TOKEN:}
+    timeout: PT30S
+    history-size: 20
+
+  limits:
+    max-transfer-amount: 10000.00
+    daily-transfer-limit: 20000.00
+    pending-action-ttl: PT10M
+    max-transactions-per-query: 50
+
+  demo-data:
+    enabled: true
+    currency: RON
+
+logging:
+  level:
+    org.springframework.security: INFO

@@ -1,0 +1,39 @@
+# Read-only API for the UI. Money values are strings (e.g. "1250.50") to avoid floating point errors.
+type Query {
+    accounts: [Account!]!
+    account(id: ID!): Account
+    transactions(accountId: ID!, limit: Int = 20): [Transaction!]!
+}
+
+type Account {
+    id: ID!
+    iban: String!
+    name: String!
+    type: AccountType!
+    currency: String!
+    balance: String!
+    transactions(limit: Int = 10): [Transaction!]!
+}
+
+enum AccountType {
+    CURRENT
+    SAVINGS
+}
+
+type Transaction {
+    id: ID!
+    accountId: ID!
+    type: TransactionType!
+    amount: String!
+    currency: String!
+    description: String
+    counterpartyName: String
+    counterpartyIban: String
+    bookedAt: String!
+    balanceAfter: String!
+}
+
+enum TransactionType {
+    CREDIT
+    DEBIT
+}
