@@ -31,7 +31,6 @@ import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
 import org.springframework.security.web.csrf.CsrfFilter;
 import org.springframework.security.web.csrf.CsrfTokenRequestAttributeHandler;
 import org.springframework.security.web.servlet.util.matcher.PathPatternRequestMatcher;
-import org.springframework.security.web.util.matcher.OrRequestMatcher;
 
 import lombok.RequiredArgsConstructor;
 
@@ -56,8 +55,7 @@ public class SecurityConfig {
     private static final String[] DEV_TOOL_PATHS = {
             "/swagger-ui.html",
             "/swagger-ui/**",
-            "/v3/api-docs/**",
-            "/graphiql/**"
+            "/v3/api-docs/**"
     };
 
     private final AppProperties properties;
@@ -93,7 +91,7 @@ public class SecurityConfig {
                 // APIs answer 401 (the SPA decides what to do); pages are redirected to the login
                 .exceptionHandling(exceptions -> exceptions.defaultAuthenticationEntryPointFor(
                         new HttpStatusEntryPoint(HttpStatus.UNAUTHORIZED),
-                        new OrRequestMatcher(paths.matcher("/api/**"), paths.matcher("/graphql"))));
+                        paths.matcher("/api/**")));
 
         return http.build();
     }
