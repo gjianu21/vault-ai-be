@@ -1,29 +1,13 @@
 package com.vaultai.be.chat;
 
 import java.time.Instant;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
-import java.util.Locale;
 import java.util.UUID;
 
-import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.util.StringUtils;
 
-import com.vaultai.be.account.AccountService;
-import com.vaultai.be.action.ActionResultDto;
-import com.vaultai.be.action.ActionService;
-import com.vaultai.be.action.ActionType;
-import com.vaultai.be.agent.AgentClient;
-import com.vaultai.be.agent.AgentContext;
-import com.vaultai.be.agent.AgentMessage;
-import com.vaultai.be.agent.AgentRequest;
-import com.vaultai.be.agent.AgentResponse;
 import com.vaultai.be.common.NotFoundException;
-import com.vaultai.be.config.AppProperties;
 
 import lombok.RequiredArgsConstructor;
 
@@ -33,16 +17,16 @@ public class ChatService {
 
     private static final int TITLE_LENGTH = 60;
 
+    /** Temporary reply until the dashboard agent is wired in (plan step BE-9). */
+    private static final String PLACEHOLDER_REPLY =
+            "The cockpit assistant is being set up. Dashboards will be available soon.";
+
     private final ConversationRepository conversationRepository;
     private final ChatMessageRepository messageRepository;
-    private final AccountService accountService;
-    private final AgentClient agentClient;
-    private final ActionService actionService;
-    private final AppProperties properties;
 
     /**
-     * Not @Transactional on purpose: the agent call can take several seconds
-     * and must not keep a database connection (and locks) open.
+     * Not @Transactional on purpose: the agent call (added in plan step BE-9) can take
+     * several seconds and must not keep a database connection (and locks) open.
      */
     public ChatResponse sendMessage(UUID ownerId, UUID conversationId, String text) {
         Conversation conversation = conversationId == null
@@ -50,23 +34,15 @@ public class ChatService {
                 : conversationRepository.findByIdAndOwnerId(conversationId, ownerId)
                 .orElseThrow(() -> new NotFoundException("Conversation not found"));
 
-        List<AgentMessage> history = recentHistory(conversation.getId());
-        saveMessage(conversation, MessageRole.USER, text, null);
+        saveMessage(conversation, MessageRole.USER, text);
 
-        AgentResponse agentResponse = agentClient.send(
-                new AgentRequest(conversation.getId(), text, history, buildContext(ownerId)));
-
-        ActionResultDto action = agentResponse.action() == null
-                ? null
-                : actionService.handleProposal(ownerId, conversation.getId(), agentResponse.action());
-
-        String reply = StringUtils.hasText(agentResponse.reply()) ? agentResponse.reply() : "Done.";
-        saveMessage(conversation, MessageRole.ASSISTANT, reply, action == null ? null : action.actionId());
+        String reply = PLACEHOLDER_REPLY;
+        saveMessage(conversation, MessageRole.ASSISTANT, reply);
 
         conversation.setUpdatedAt(Instant.now());
         conversationRepository.save(conversation);
 
-        return new ChatResponse(conversation.getId(), reply, action);
+        return new ChatResponse(conversation.getId(), reply);
     }
 
     @Transactional(readOnly = true)
@@ -99,39 +75,12 @@ public class ChatService {
                 .build());
     }
 
-    private List<AgentMessage> recentHistory(UUID conversationId) {
-        List<ChatMessage> latest = messageRepository.findByConversation_IdOrderByCreatedAtDesc(
-                conversationId, PageRequest.of(0, properties.agent().historySize()));
-
-        List<AgentMessage> history = new ArrayList<>(latest.stream()
-                .map(message -> new AgentMessage(message.getRole().name().toLowerCase(Locale.ROOT),
-                        message.getContent()))
-                .toList());
-        Collections.reverse(history); // oldest first
-        return history;
-    }
-
-    private void saveMessage(Conversation conversation, MessageRole role, String content, UUID actionId) {
+    private void saveMessage(Conversation conversation, MessageRole role, String content) {
         messageRepository.save(ChatMessage.builder()
                 .conversation(conversation)
                 .role(role)
                 .content(content)
-                .actionId(actionId)
                 .createdAt(Instant.now())
                 .build());
-    }
-
-    private AgentContext buildContext(UUID ownerId) {
-        List<AgentContext.AccountInfo> accounts = accountService.getAccounts(ownerId).stream()
-                .map(account -> new AgentContext.AccountInfo(account.id().toString(), account.name(),
-                        account.type().name(), account.currency()))
-                .toList();
-
-        List<AgentContext.ActionInfo> actions = Arrays.stream(ActionType.values())
-                .map(type -> new AgentContext.ActionInfo(type.name(), type.description(), type.parameters(),
-                        type.requiresConfirmation()))
-                .toList();
-
-        return new AgentContext(accounts, actions);
     }
 }

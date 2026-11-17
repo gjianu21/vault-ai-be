@@ -19,8 +19,6 @@ public class OpenApiConfig {
 
                         Authentication: sign in through the application first. The session cookie \
                         (VAULT-SESSION) is sent automatically and Swagger UI adds the CSRF header.
-
-                        Read-only data (accounts, transactions) is also available through GraphQL at /graphql.
                         """));
     }
 }

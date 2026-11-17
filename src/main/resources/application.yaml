@@ -47,10 +47,6 @@ spring:
             issuer-uri: ${AUTH_ISSUER_URI:http://localhost:9000}
             user-name-attribute: sub
 
-  graphql:
-    graphiql:
-      enabled: false
-
 server:
   port: ${PORT:8080}
   servlet:
@@ -84,12 +80,6 @@ app:
     api-token: ${AGENT_API_TOKEN:}
     timeout: PT30S
     history-size: 20
-
-  limits:
-    max-transfer-amount: 10000.00
-    daily-transfer-limit: 20000.00
-    pending-action-ttl: PT10M
-    max-transactions-per-query: 50
 
   demo-data:
     enabled: true
