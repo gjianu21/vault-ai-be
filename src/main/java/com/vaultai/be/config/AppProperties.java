@@ -1,15 +1,13 @@
 package com.vaultai.be.config;
 
 import java.time.Duration;
+import java.util.List;
 
+import jakarta.validation.constraints.*;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.validation.annotation.Validated;
 
 import jakarta.validation.Valid;
-import jakarta.validation.constraints.Max;
-import jakarta.validation.constraints.Min;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
 
 @Validated
 @ConfigurationProperties(prefix = "app")
@@ -20,11 +18,11 @@ public record AppProperties(
         @Valid @NotNull DemoData demoData) {
 
     public record Agent(
-            String baseUrl,
-            String chatPath,
-            String apiToken,
+            @NotEmpty List<String> cliCommand,
             @NotNull Duration timeout,
-            @Min(1) @Max(50) int historySize) {
+            @Min(1) @Max(50) int historySize,
+            @Min(2000) @Max(30000) int maxPromptChars,
+            @Min(1) @Max(5) int maxConcurrent) {
     }
 
     public record DemoData(

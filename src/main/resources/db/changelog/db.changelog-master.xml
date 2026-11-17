@@ -10,4 +10,7 @@
     <include file="changes/003-chat.xml" relativeToChangelogFile="true"/>
     <include file="changes/004-agent-action.xml" relativeToChangelogFile="true"/>
     <include file="changes/005-audit-log.xml" relativeToChangelogFile="true"/>
+    <include file="changes/006-agent-prompt.xml" relativeToChangelogFile="true"/>
+    <include file="changes/007-conversation-saved.xml" relativeToChangelogFile="true"/>
+    <include file="changes/008-conversation-closed.xml" relativeToChangelogFile="true"/>
 </databaseChangeLog>
