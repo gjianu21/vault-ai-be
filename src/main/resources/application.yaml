@@ -75,11 +75,11 @@ app:
   internal-api-key: ${INTERNAL_API_KEY}
 
   agent:
-    base-url: ${AGENT_BASE_URL:}
-    chat-path: ${AGENT_CHAT_PATH:/chat}
-    api-token: ${AGENT_API_TOKEN:}
-    timeout: PT30S
-    history-size: 20
+    cli-command: ${COPILOT_CLI:copilot}
+    timeout: ${AGENT_TIMEOUT:PT60S}
+    history-size: 10
+    max-prompt-chars: 24000
+    max-concurrent: 2
 
   demo-data:
     enabled: true

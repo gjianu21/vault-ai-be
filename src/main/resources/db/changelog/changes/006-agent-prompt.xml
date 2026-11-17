@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
+
+    <changeSet id="006-create-agent-prompt" author="jianu">
+        <createTable tableName="agent_prompt">
+            <column name="id" type="RAW(16)">
+                <constraints primaryKey="true" primaryKeyName="pk_agent_prompt" nullable="false"/>
+            </column>
+            <column name="owner_id" type="RAW(16)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="conversation_id" type="RAW(16)"/>
+            <column name="replay_of_id" type="RAW(16)"/>
+            <column name="user_message" type="CLOB">
+                <constraints nullable="false"/>
+            </column>
+            <column name="prompt" type="CLOB">
+                <constraints nullable="false"/>
+            </column>
+            <column name="raw_output" type="CLOB"/>
+            <column name="reply" type="CLOB"/>
+            <column name="status" type="VARCHAR2(20)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="reply_source" type="VARCHAR2(20)"/>
+            <column name="exit_code" type="NUMBER(5)"/>
+            <column name="duration_ms" type="NUMBER(10)"/>
+            <column name="failure_reason" type="VARCHAR2(1000)"/>
+            <column name="created_at" type="TIMESTAMP(6) WITH TIME ZONE">
+                <constraints nullable="false"/>
+            </column>
+            <column name="completed_at" type="TIMESTAMP(6) WITH TIME ZONE"/>
+        </createTable>
+
+        <addForeignKeyConstraint
+                baseTableName="agent_prompt"
+                baseColumnNames="conversation_id"
+                constraintName="fk_agent_prompt_conversation"
+                referencedTableName="chat_conversation"
+                referencedColumnNames="id"
+                onDelete="CASCADE"/>
+
+        <createIndex tableName="agent_prompt" indexName="ix_agent_prompt_owner">
+            <column name="owner_id"/>
+            <column name="created_at"/>
+        </createIndex>
+
+        <createIndex tableName="agent_prompt" indexName="ix_agent_prompt_conversation">
+            <column name="conversation_id"/>
+            <column name="created_at"/>
+        </createIndex>
+    </changeSet>
+</databaseChangeLog>
